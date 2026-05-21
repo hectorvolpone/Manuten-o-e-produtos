@@ -1,0 +1,1309 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manutenções - Casa de Temporada</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px;
+    color: #2d3748;
+  }
+  .container { max-width: 1200px; margin: 0 auto; }
+  .container-narrow { max-width: 900px; margin: 0 auto; }
+
+  /* ===== LOGIN ===== */
+  .login-wrapper {
+    min-height: calc(100vh - 40px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .login-box {
+    background: white;
+    border-radius: 16px;
+    padding: 40px 36px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+  }
+  .login-logo {
+    text-align: center;
+    font-size: 48px;
+    margin-bottom: 8px;
+  }
+  .login-box h1 {
+    font-size: 24px;
+    text-align: center;
+    margin-bottom: 6px;
+    color: #2d3748;
+  }
+  .login-box .subtitle {
+    text-align: center;
+    color: #718096;
+    font-size: 13px;
+    margin-bottom: 28px;
+  }
+  .login-error {
+    background: #fed7d7;
+    color: #c53030;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    margin-bottom: 16px;
+    display: none;
+  }
+  .login-error.show { display: block; }
+
+  /* ===== HEADER ===== */
+  header {
+    background: white;
+    border-radius: 12px;
+    padding: 20px 28px;
+    margin-bottom: 24px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  header h1 { font-size: 22px; color: #2d3748; }
+  header .subtitle { color: #718096; font-size: 13px; }
+  .user-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 13px;
+  }
+  .user-info .badge-role {
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+  .role-admin { background: #fbbf24; color: #78350f; }
+  .role-operador { background: #93c5fd; color: #1e3a8a; }
+
+  /* ===== CARDS / GERAL ===== */
+  .card {
+    background: white;
+    border-radius: 12px;
+    padding: 28px;
+    margin-bottom: 24px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  }
+  .card h2 {
+    font-size: 20px;
+    margin-bottom: 20px;
+    color: #2d3748;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  .form-group { display: flex; flex-direction: column; }
+  .form-group.full { grid-column: 1 / -1; }
+  label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #4a5568;
+    margin-bottom: 6px;
+  }
+  label .req { color: #e53e3e; }
+  input, select, textarea {
+    padding: 10px 12px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+    transition: border-color 0.2s;
+    background: white;
+    width: 100%;
+  }
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  }
+  textarea { resize: vertical; min-height: 80px; }
+
+  .file-input-wrapper {
+    border: 2px dashed #cbd5e0;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: #f7fafc;
+    display: block;
+  }
+  .file-input-wrapper:hover { border-color: #667eea; background: #edf2f7; }
+  .file-input-wrapper input { display: none; }
+  .file-input-label { color: #4a5568; font-size: 14px; }
+  .file-input-label strong { color: #667eea; }
+
+  .preview-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .preview-item {
+    position: relative;
+    aspect-ratio: 1;
+    border-radius: 6px;
+    overflow: hidden;
+    background: #edf2f7;
+  }
+  .preview-item img, .preview-item video {
+    width: 100%; height: 100%; object-fit: cover;
+  }
+  .preview-item .remove {
+    position: absolute; top: 4px; right: 4px;
+    background: rgba(229, 62, 62, 0.9); color: white;
+    border: none; border-radius: 50%;
+    width: 22px; height: 22px;
+    cursor: pointer; font-size: 14px; line-height: 1;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .preview-item .badge {
+    position: absolute; bottom: 4px; left: 4px;
+    background: rgba(0,0,0,0.7); color: white;
+    font-size: 10px; padding: 2px 6px;
+    border-radius: 4px; text-transform: uppercase;
+  }
+
+  .actions {
+    display: flex; gap: 12px;
+    justify-content: flex-end; flex-wrap: wrap;
+    margin-top: 8px;
+  }
+  button {
+    padding: 11px 22px; border: none;
+    border-radius: 8px; font-size: 14px; font-weight: 600;
+    cursor: pointer; transition: all 0.2s;
+    font-family: inherit;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  button:disabled { opacity: 0.6; cursor: not-allowed; }
+  .btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white; width: 100%; justify-content: center;
+  }
+  .btn-primary:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(102, 126, 234, 0.3); }
+  .btn-primary.btn-inline { width: auto; }
+  .btn-success { background: #38a169; color: white; }
+  .btn-success:hover:not(:disabled) { background: #2f855a; }
+  .btn-secondary { background: #edf2f7; color: #4a5568; }
+  .btn-secondary:hover:not(:disabled) { background: #e2e8f0; }
+  .btn-danger { background: #fed7d7; color: #c53030; padding: 6px 12px; font-size: 12px; }
+  .btn-danger:hover:not(:disabled) { background: #feb2b2; }
+  .btn-logout {
+    background: #edf2f7; color: #4a5568;
+    padding: 8px 14px; font-size: 12px;
+  }
+
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .stat {
+    background: white; border-radius: 12px; padding: 20px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  }
+  .stat .label { font-size: 12px; color: #718096; text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px; }
+  .stat .value { font-size: 24px; font-weight: 700; color: #2d3748; margin-top: 4px; }
+  .stat.green .value { color: #38a169; }
+  .stat.orange .value { color: #dd6b20; }
+  .stat.purple .value { color: #805ad5; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th {
+    text-align: left; padding: 12px;
+    background: #f7fafc; color: #4a5568; font-weight: 600;
+    border-bottom: 2px solid #e2e8f0;
+    position: sticky; top: 0;
+  }
+  td { padding: 12px; border-bottom: 1px solid #edf2f7; vertical-align: top; }
+  tr:hover td { background: #f7fafc; }
+  .tipo-badge {
+    display: inline-block; padding: 3px 10px;
+    border-radius: 12px; font-size: 11px;
+    font-weight: 600; text-transform: uppercase;
+  }
+  .t-eletrica { background: #fef3c7; color: #92400e; }
+  .t-hidraulica { background: #dbeafe; color: #1e40af; }
+  .t-pintura { background: #fce7f3; color: #9d174d; }
+  .t-limpeza { background: #d1fae5; color: #065f46; }
+  .t-jardim { background: #ecfccb; color: #3f6212; }
+  .t-moveis { background: #ffedd5; color: #9a3412; }
+  .t-eletrodomestico { background: #e0e7ff; color: #3730a3; }
+  .t-outros { background: #e2e8f0; color: #4a5568; }
+  .status-badge {
+    display: inline-block; padding: 3px 10px;
+    border-radius: 12px; font-size: 11px; font-weight: 600;
+  }
+  .s-pendente { background: #fed7d7; color: #c53030; }
+  .s-andamento { background: #feebc8; color: #c05621; }
+  .s-concluido { background: #c6f6d5; color: #22543d; }
+  .s-reembolsado { background: #bee3f8; color: #2c5282; }
+
+  .cat-badge {
+    display: inline-block; padding: 2px 8px;
+    border-radius: 10px; font-size: 10px;
+    font-weight: 700; text-transform: uppercase; margin-right: 4px;
+  }
+  .c-manutencao { background: #ddd6fe; color: #5b21b6; }
+  .c-produto { background: #cffafe; color: #155e75; }
+
+  .empty { text-align: center; padding: 60px 20px; color: #a0aec0; }
+  .empty .icon { font-size: 48px; margin-bottom: 12px; }
+  .table-wrapper { overflow-x: auto; }
+  .filters {
+    display: flex; gap: 12px;
+    margin-bottom: 16px; flex-wrap: wrap; align-items: center;
+  }
+  .filters input, .filters select { flex: 1; min-width: 150px; }
+  .media-cell { display: flex; gap: 4px; flex-wrap: wrap; }
+  .media-thumb {
+    width: 40px; height: 40px; border-radius: 4px;
+    object-fit: cover; cursor: pointer;
+    border: 1px solid #e2e8f0;
+  }
+  .media-thumb-video {
+    position: relative; width: 40px; height: 40px;
+    background: #2d3748; border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    color: white; cursor: pointer;
+  }
+
+  .modal {
+    display: none; position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.85); z-index: 1000;
+    align-items: center; justify-content: center; padding: 20px;
+  }
+  .modal.active { display: flex; }
+  .modal-content { max-width: 90%; max-height: 90vh; }
+  .modal-content img, .modal-content video {
+    max-width: 100%; max-height: 90vh; border-radius: 8px;
+  }
+  .modal-close {
+    position: absolute; top: 20px; right: 30px;
+    color: white; font-size: 36px; cursor: pointer;
+    background: none; border: none;
+  }
+
+  .toast {
+    position: fixed; bottom: 30px; right: 30px;
+    background: #2d3748; color: white;
+    padding: 14px 22px; border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    transform: translateY(100px); opacity: 0;
+    transition: all 0.3s; z-index: 999;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast.success { background: #38a169; }
+  .toast.error { background: #e53e3e; }
+  .money { font-weight: 600; color: #2d3748; }
+  .diff-positive { color: #38a169; font-size: 11px; }
+  .diff-negative { color: #e53e3e; font-size: 11px; }
+
+  .toggle-categoria {
+    display: flex; gap: 8px;
+    margin-bottom: 20px;
+    padding: 4px;
+    background: #f7fafc;
+    border-radius: 10px;
+    width: fit-content;
+  }
+  .cat-btn {
+    padding: 10px 20px;
+    background: transparent; color: #4a5568;
+    border-radius: 8px; font-size: 14px; font-weight: 600;
+    transition: all 0.2s;
+  }
+  .cat-btn.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+  }
+
+  .loader {
+    display: inline-block;
+    width: 16px; height: 16px;
+    border: 2px solid #fff; border-bottom-color: transparent;
+    border-radius: 50%;
+    animation: rotation 1s linear infinite;
+    vertical-align: middle;
+  }
+  @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+  .config-warning {
+    background: #fef3c7; color: #78350f;
+    padding: 14px 18px; border-radius: 8px;
+    margin-bottom: 16px; font-size: 13px;
+    border-left: 4px solid #f59e0b;
+  }
+  .config-warning code { background: rgba(0,0,0,0.08); padding: 1px 6px; border-radius: 4px; font-size: 12px; }
+
+  .hidden { display: none !important; }
+
+  @media (max-width: 640px) {
+    body { padding: 12px; }
+    .card { padding: 20px; }
+    header { padding: 16px 20px; }
+    header h1 { font-size: 18px; }
+    .login-box { padding: 30px 24px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ====== TELA DE LOGIN ====== -->
+<div id="loginScreen" class="login-wrapper">
+  <div class="login-box">
+    <div class="login-logo">🏠</div>
+    <h1>Manutenções</h1>
+    <div class="subtitle">Casa de Aluguel de Temporada</div>
+    <div class="login-error" id="loginError"></div>
+    <form id="loginForm">
+      <div class="form-group" style="margin-bottom:14px;">
+        <label>Email</label>
+        <input type="email" id="loginEmail" required autocomplete="email">
+      </div>
+      <div class="form-group" style="margin-bottom:20px;">
+        <label>Senha</label>
+        <input type="password" id="loginSenha" required autocomplete="current-password">
+      </div>
+      <button type="submit" class="btn-primary" id="btnLogin">Entrar</button>
+    </form>
+  </div>
+</div>
+
+<!-- ====== APP ====== -->
+<div id="appScreen" class="container hidden">
+  <header>
+    <div>
+      <h1>🏠 Manutenções e Reembolsos</h1>
+      <div class="subtitle">Casa de Aluguel de Temporada</div>
+    </div>
+    <div class="user-info">
+      <span id="userEmail" style="color:#4a5568;"></span>
+      <span class="badge-role" id="userRole"></span>
+      <button type="button" class="btn-logout" onclick="logout()">Sair</button>
+    </div>
+  </header>
+
+  <!-- Stats (somente admin) -->
+  <div class="stats" id="statsArea">
+    <div class="stat">
+      <div class="label">Total de Registros</div>
+      <div class="value" id="statTotal">0</div>
+    </div>
+    <div class="stat orange">
+      <div class="label">Orçamento Total</div>
+      <div class="value" id="statOrcamento">R$ 0,00</div>
+    </div>
+    <div class="stat green">
+      <div class="label">Valor Gasto</div>
+      <div class="value" id="statValor">R$ 0,00</div>
+    </div>
+    <div class="stat purple">
+      <div class="label">A Reembolsar</div>
+      <div class="value" id="statReembolso">R$ 0,00</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>➕ Novo Registro</h2>
+    <div class="toggle-categoria">
+      <button type="button" class="cat-btn active" data-cat="Manutenção" onclick="selecionarCategoria('Manutenção')">🔧 Manutenção</button>
+      <button type="button" class="cat-btn" data-cat="Produto" onclick="selecionarCategoria('Produto')">🛒 Produto</button>
+    </div>
+    <form id="formManutencao">
+      <input type="hidden" id="categoria" value="Manutenção">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Data <span class="req">*</span></label>
+          <input type="date" id="data" required>
+        </div>
+        <div class="form-group">
+          <label>Imóvel / Casa <span class="req">*</span></label>
+          <input type="text" id="imovel" list="listaCasas" placeholder="Digite para buscar..." required autocomplete="off">
+          <datalist id="listaCasas"></datalist>
+        </div>
+        <div class="form-group">
+          <label id="labelTipo">Tipo de Manutenção <span class="req">*</span></label>
+          <select id="tipo" required>
+            <option value="">Selecione...</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Status <span class="req">*</span></label>
+          <select id="status" required>
+            <option value="Pendente">Pendente</option>
+            <option value="Em andamento">Em andamento</option>
+            <option value="Concluído">Concluído</option>
+            <option value="Reembolsado">Reembolsado</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label id="labelPrestador">Prestador de Serviço</label>
+          <input type="text" id="prestador" placeholder="Nome do profissional/empresa">
+        </div>
+        <div class="form-group" id="grpQuantidade" style="display:none;">
+          <label>Quantidade</label>
+          <input type="number" id="quantidade" step="0.01" min="0" placeholder="Ex: 2">
+        </div>
+        <div class="form-group" id="grpLocalCompra" style="display:none;">
+          <label>Local da Compra</label>
+          <input type="text" id="localCompra" placeholder="Ex: Casas Bahia, Mercado Livre...">
+        </div>
+        <div class="form-group">
+          <label>Nota Fiscal / Recibo</label>
+          <input type="text" id="nota" placeholder="Número da NF/recibo">
+        </div>
+        <div class="form-group">
+          <label>Orçamento (R$)</label>
+          <input type="number" id="orcamento" step="0.01" min="0" placeholder="0,00">
+        </div>
+        <div class="form-group">
+          <label>Valor Pago (R$) <span class="req">*</span></label>
+          <input type="number" id="valor" step="0.01" min="0" placeholder="0,00" required>
+        </div>
+        <div class="form-group">
+          <label>Forma de Pagamento</label>
+          <select id="pagamento">
+            <option value="">Selecione...</option>
+            <option value="Dinheiro">Dinheiro</option>
+            <option value="PIX">PIX</option>
+            <option value="Cartão Crédito">Cartão Crédito</option>
+            <option value="Cartão Débito">Cartão Débito</option>
+            <option value="Transferência">Transferência</option>
+            <option value="Boleto">Boleto</option>
+          </select>
+        </div>
+        <div class="form-group full">
+          <label id="labelDescricao">Descrição do Serviço <span class="req">*</span></label>
+          <textarea id="descricao" placeholder="Detalhe o serviço realizado..." required></textarea>
+        </div>
+        <div class="form-group full">
+          <label>Observações</label>
+          <textarea id="observacoes" placeholder="Informações adicionais..."></textarea>
+        </div>
+        <div class="form-group full">
+          <label>📷 Fotos e 🎥 Vídeos</label>
+          <label class="file-input-wrapper" for="midia">
+            <input type="file" id="midia" accept="image/*,video/*" multiple>
+            <div class="file-input-label">
+              <strong>Clique para selecionar</strong> ou arraste arquivos<br>
+              <small>Imagens e vídeos do antes/depois, recibos, etc.</small>
+            </div>
+          </label>
+          <div class="preview-grid" id="preview"></div>
+        </div>
+      </div>
+      <div class="actions">
+        <button type="button" class="btn-secondary" onclick="limparForm()">Limpar</button>
+        <button type="submit" class="btn-primary btn-inline" id="btnSalvar">💾 Salvar Registro</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Lista (somente admin) -->
+  <div class="card" id="listaArea">
+    <h2>📋 Registros Cadastrados</h2>
+    <div class="filters">
+      <input type="text" id="filtroBusca" placeholder="🔍 Buscar por descrição, imóvel, prestador...">
+      <select id="filtroCategoria">
+        <option value="">Todas as categorias</option>
+        <option value="Manutenção">Manutenção</option>
+        <option value="Produto">Produto</option>
+      </select>
+      <select id="filtroTipo">
+        <option value="">Todos os tipos</option>
+      </select>
+      <select id="filtroStatus">
+        <option value="">Todos os status</option>
+        <option value="Pendente">Pendente</option>
+        <option value="Em andamento">Em andamento</option>
+        <option value="Concluído">Concluído</option>
+        <option value="Reembolsado">Reembolsado</option>
+      </select>
+      <button type="button" class="btn-success" onclick="exportarExcel()">📊 Exportar Excel</button>
+      <button type="button" class="btn-primary btn-inline" onclick="exportarPDF()">📄 Exportar PDF</button>
+    </div>
+    <div class="table-wrapper">
+      <table id="tabela">
+        <thead>
+          <tr>
+            <th>Data</th>
+            <th>Cat.</th>
+            <th>Imóvel</th>
+            <th>Tipo</th>
+            <th>Descrição</th>
+            <th>Prestador/Local</th>
+            <th>Orçam.</th>
+            <th>Valor</th>
+            <th>Status</th>
+            <th>Mídias</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+    <div id="vazio" class="empty" style="display:none;">
+      <div class="icon">📭</div>
+      <div>Nenhum registro cadastrado ainda.</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="modal" id="modal" onclick="fecharModal()">
+  <button class="modal-close" onclick="fecharModal()">&times;</button>
+  <div class="modal-content" id="modalContent" onclick="event.stopPropagation()"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================================
+// CONFIGURAÇÃO - PREENCHA APÓS CRIAR O PROJETO NO SUPABASE
+// ============================================================
+const SUPABASE_URL = 'https://ihfifjjhcpfvloidohna.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_-vv4ikIG0Lq9As4brjZJ2w_KUZVIqL1';
+// ============================================================
+
+const BUCKET = 'manutencao-midias';
+
+const CASAS = ["Bangalô Sol","Canto da Sereia - Suíte 1","Canto da Sereia - Suíte 10","Canto da Sereia - Suíte 2","Canto da Sereia - Suíte 3","Canto da Sereia - Suíte 4","Canto da Sereia - Suíte 5","Canto da Sereia - Suíte 6","Canto da Sereia - Suíte 7","Canto da Sereia - Suíte 8","Canto da Sereia - Suíte 9","Casa 1 Baepi","Casa 2 Baepi","Casa 6 Baepi","Casa da Feiticeira - Thiago","Casa da Marta - Galera","Casa da Sereia - Itaguaçu","Casa da Vânia - Cocaia","Casa do Monge","Casa do Márcio","Casa Flora - Cocaia","Casa Guara Barra Velha - Brisa Tropical","Casa inteira - Casa da Sereia Búzios","Casa Itaguaçu - Renata","Casa Juquinha - Praia do Arrastão","Casa Lala e Jow - inteira","Casa Maritacas 13","Casa Maritacas 15","Casa Maritacas 16","Casa Maritacas 18","Casa Maritacas 6","Casa Miro e Menininha","Casa Principal - Siriúba","Casa Saco da Capela (Marisa)","Casa Vila Serena - Cris Barra Velha","Casinha - escritório","Chalé 1 - Encontro das Águas","Chalé 2 - Encontro das Águas","Chalé Ayty Cascata","Chalé Ayty Cozinha","Chalé Ayty Floresta","Chalé Barra Velha - Yan","Chalé Canoa 2 pessoas","Chalé Canoa 4 pessoas","Chalé Encantado - Saco da Capela","Chalé Ju Perequê","Chalé Pedra da Feiticeira","Costeira da Sereia","Duplex 22 - 4 pessoas c/ vista -Ivanilse","Duplex 3 - 5 pessoas c/ vista","Encontro das Águas","Ilhabela Residence - Feiticeira","La Bella Vista","Loft 1 - Lofts do Paquetá","Loft 2 - Lofts do Paquetá","Loft 3 - Lofts do Paquetá","Loft Solar Sereia - Chalé Neide","Maritacas 14","Mirante da Armação - Adriana","Quarto 17 - 4 pessoas c/ vista e cozinha - Vanessa Prieto","Quarto 30 - 3 pessoas c/ vista","Quarto 31 - 3 pessoas c/ vista","Quarto 35 - 3 pessoas c/vista","Quarto 36 - 3 pessoas c/ vista","Quarto 38 - 3 pessoas c/ vista e cozinha - Vanessa Prieto","Quarto 41 - 4 pessoas sem vista","Quarto 42 - 4 pessoas sem vista","Quarto 43 - 3 pessoas sem vista","Quarto 45 - 2 pessoas sem vista","Quarto 46 - 2 pessoas sem vista","Quarto 47 - 2 pessoas sem vista","Quarto 7 - 3 pessoas c/ vista - Mercia","Recanto Brasil - Casa Bruna Perequê","Refúgio da Feiticeira - Teresa e Luiz","Santorini","Suíte 1 - Brisa do Pequeá","Suíte 1 - Suítes Sereia do Curral","Suíte 1 - vista para o mar","Suíte 2 - Brisa do Pequeá","Suíte 2 - Suítes Sereia do Curral","Suíte 2 - varandinha","Suíte 3 - Suítes Sereia do Curral","Suíte 3 - vista para a mata","Suíte 4 - parte inferior","Suíte 4 - Suítes Sereia do Curral","Suíte Cavalo-marinho -- Casa da Sereia Búzios","Suíte Estrela -- Casa da Sereia Búzios","Suíte Golfinho -- Casa da Sereia Búzios","Suíte Mergulhador - Casa da Sereia Búzios","Suíte Naturaleza - Quarto 1","Suíte Naturaleza - Quarto 2","Suíte Naturaleza - Quarto 3","Suíte Naturaleza - Quarto 4","Suíte Naturaleza - Quarto 5","Suíte Naturaleza - Quarto 6","Suíte Naturaleza - Quarto 7","Suíte Naturaleza - Quarto 8","Suíte Naturaleza - Quarto 9","Suíte Peixe - Casa da Sereia Búzios","Suíte Âncora -- Casa da Sereia Búzios","Toca do Gijo","Vistamar"];
+
+const TIPOS_MANUTENCAO = ["Elétrica","Hidráulica","Pintura","Limpeza","Jardim/Piscina","Móveis","Eletrodoméstico","Estrutural/Alvenaria","Ar-condicionado","Telhado","Outros"];
+const TIPOS_PRODUTO = ["Material de Construção","Ferramentas","Eletrodoméstico","Móveis","Decoração","Cama/Mesa/Banho","Limpeza","Cozinha/Utensílios","Jardinagem","Iluminação","Hidráulica","Elétrica","Outros"];
+
+let sb = null;
+let usuario = null;
+let perfil = null;
+let registros = [];
+let midiasAtuais = [];
+
+// ============================================================
+// INICIALIZAÇÃO
+// ============================================================
+function init() {
+  if (SUPABASE_URL.startsWith('COLE_') || SUPABASE_ANON_KEY.startsWith('COLE_')) {
+    document.getElementById('loginScreen').innerHTML = `
+      <div class="login-box">
+        <div class="login-logo">⚙️</div>
+        <h1>Configuração necessária</h1>
+        <div class="config-warning" style="margin-top:20px;">
+          <strong>Antes do primeiro uso:</strong><br><br>
+          Edite o arquivo <code>index.html</code> e preencha as variáveis:
+          <ul style="margin:8px 0 0 20px;">
+            <li><code>SUPABASE_URL</code></li>
+            <li><code>SUPABASE_ANON_KEY</code></li>
+          </ul>
+          <br>
+          Veja o <code>INSTRUCOES.md</code> para o passo a passo completo.
+        </div>
+      </div>
+    `;
+    return;
+  }
+  sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  popularListas();
+  selecionarCategoria('Manutenção');
+  document.getElementById('data').value = new Date().toISOString().slice(0, 10);
+  verificarSessao();
+}
+
+async function verificarSessao() {
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) {
+    usuario = session.user;
+    await carregarPerfil();
+    mostrarApp();
+  } else {
+    mostrarLogin();
+  }
+}
+
+async function carregarPerfil() {
+  const { data, error } = await sb.from('profiles').select('*').eq('id', usuario.id).single();
+  if (error) {
+    console.error('Erro ao carregar perfil:', error);
+    perfil = { role: 'operador', nome: usuario.email };
+  } else {
+    perfil = data;
+  }
+}
+
+function mostrarLogin() {
+  document.getElementById('loginScreen').classList.remove('hidden');
+  document.getElementById('appScreen').classList.add('hidden');
+}
+
+function mostrarApp() {
+  document.getElementById('loginScreen').classList.add('hidden');
+  document.getElementById('appScreen').classList.remove('hidden');
+  document.getElementById('userEmail').textContent = usuario.email;
+  const roleBadge = document.getElementById('userRole');
+  roleBadge.textContent = perfil.role === 'admin' ? 'Admin' : 'Operador';
+  roleBadge.className = 'badge-role role-' + perfil.role;
+
+  // Operador: esconde stats, lista e exportações
+  if (perfil.role !== 'admin') {
+    document.getElementById('statsArea').classList.add('hidden');
+    document.getElementById('listaArea').classList.add('hidden');
+  } else {
+    document.getElementById('statsArea').classList.remove('hidden');
+    document.getElementById('listaArea').classList.remove('hidden');
+    carregarRegistros();
+  }
+}
+
+// ============================================================
+// LOGIN / LOGOUT
+// ============================================================
+document.getElementById('loginForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const btn = document.getElementById('btnLogin');
+  const err = document.getElementById('loginError');
+  err.classList.remove('show');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="loader"></span> Entrando...';
+
+  const { data, error } = await sb.auth.signInWithPassword({
+    email: document.getElementById('loginEmail').value,
+    password: document.getElementById('loginSenha').value
+  });
+
+  btn.disabled = false;
+  btn.textContent = 'Entrar';
+
+  if (error) {
+    err.textContent = error.message === 'Invalid login credentials'
+      ? 'Email ou senha incorretos.'
+      : 'Erro ao entrar: ' + error.message;
+    err.classList.add('show');
+    return;
+  }
+  usuario = data.user;
+  await carregarPerfil();
+  mostrarApp();
+});
+
+async function logout() {
+  await sb.auth.signOut();
+  usuario = null;
+  perfil = null;
+  registros = [];
+  document.getElementById('loginEmail').value = '';
+  document.getElementById('loginSenha').value = '';
+  mostrarLogin();
+}
+
+// ============================================================
+// HELPERS
+// ============================================================
+function toast(msg, tipo = '') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + tipo;
+  setTimeout(() => t.className = 'toast ' + tipo, 3000);
+}
+
+function brl(v) {
+  return (v || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+}
+function formatarData(d) {
+  if (!d) return '';
+  const [y, m, dd] = d.split('-');
+  return `${dd}/${m}/${y}`;
+}
+function escapeHtml(s) {
+  if (!s) return '';
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+// ============================================================
+// FORMULÁRIO
+// ============================================================
+function selecionarCategoria(cat) {
+  document.getElementById('categoria').value = cat;
+  document.querySelectorAll('.cat-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.cat === cat);
+  });
+  const isProduto = cat === 'Produto';
+  document.getElementById('labelTipo').innerHTML = (isProduto ? 'Categoria do Produto' : 'Tipo de Manutenção') + ' <span class="req">*</span>';
+  document.getElementById('labelDescricao').innerHTML = (isProduto ? 'Descrição do Produto' : 'Descrição do Serviço') + ' <span class="req">*</span>';
+  document.getElementById('labelPrestador').textContent = isProduto ? 'Fornecedor / Marca' : 'Prestador de Serviço';
+  document.getElementById('prestador').placeholder = isProduto ? 'Ex: Tramontina, Brastemp...' : 'Nome do profissional/empresa';
+  document.getElementById('descricao').placeholder = isProduto ? 'Descreva o produto comprado...' : 'Detalhe o serviço realizado...';
+  document.getElementById('grpQuantidade').style.display = isProduto ? 'flex' : 'none';
+  document.getElementById('grpLocalCompra').style.display = isProduto ? 'flex' : 'none';
+
+  const sel = document.getElementById('tipo');
+  const atual = sel.value;
+  const lista = isProduto ? TIPOS_PRODUTO : TIPOS_MANUTENCAO;
+  sel.innerHTML = '<option value="">Selecione...</option>' + lista.map(t => `<option value="${t}">${t}</option>`).join('');
+  if (lista.includes(atual)) sel.value = atual;
+}
+
+function popularListas() {
+  const dl = document.getElementById('listaCasas');
+  dl.innerHTML = CASAS.map(c => `<option value="${c.replace(/"/g, '&quot;')}">`).join('');
+  const ft = document.getElementById('filtroTipo');
+  const todos = [...new Set([...TIPOS_MANUTENCAO, ...TIPOS_PRODUTO])].sort();
+  ft.innerHTML = '<option value="">Todos os tipos</option>' + todos.map(t => `<option value="${t}">${t}</option>`).join('');
+}
+
+document.getElementById('midia').addEventListener('change', (e) => {
+  for (const file of e.target.files) {
+    midiasAtuais.push({
+      tempId: 't_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8),
+      nome: file.name,
+      tipo: file.type.startsWith('video') ? 'video' : 'image',
+      mime: file.type,
+      tamanho: file.size,
+      blob: file
+    });
+  }
+  renderPreview();
+  e.target.value = '';
+});
+
+function renderPreview() {
+  const c = document.getElementById('preview');
+  c.innerHTML = '';
+  midiasAtuais.forEach((m, i) => {
+    const div = document.createElement('div');
+    div.className = 'preview-item';
+    const url = URL.createObjectURL(m.blob);
+    if (m.tipo === 'video') {
+      div.innerHTML = `<video src="${url}" muted></video><div class="badge">vídeo</div><button class="remove" type="button" onclick="removerMidiaAtual(${i})">×</button>`;
+    } else {
+      div.innerHTML = `<img src="${url}" alt=""><div class="badge">foto</div><button class="remove" type="button" onclick="removerMidiaAtual(${i})">×</button>`;
+    }
+    c.appendChild(div);
+  });
+}
+function removerMidiaAtual(i) {
+  midiasAtuais.splice(i, 1);
+  renderPreview();
+}
+
+document.getElementById('formManutencao').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const btn = document.getElementById('btnSalvar');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="loader"></span> Salvando...';
+
+  try {
+    const reg = {
+      categoria: document.getElementById('categoria').value,
+      data: document.getElementById('data').value,
+      imovel: document.getElementById('imovel').value.trim(),
+      tipo: document.getElementById('tipo').value,
+      status: document.getElementById('status').value,
+      prestador: document.getElementById('prestador').value.trim() || null,
+      quantidade: parseFloat(document.getElementById('quantidade').value) || null,
+      local_compra: document.getElementById('localCompra').value.trim() || null,
+      nota: document.getElementById('nota').value.trim() || null,
+      orcamento: parseFloat(document.getElementById('orcamento').value) || 0,
+      valor: parseFloat(document.getElementById('valor').value) || 0,
+      pagamento: document.getElementById('pagamento').value || null,
+      descricao: document.getElementById('descricao').value.trim(),
+      observacoes: document.getElementById('observacoes').value.trim() || null,
+      criado_por: usuario.id
+    };
+
+    const { data: novoReg, error } = await sb.from('registros').insert(reg).select().single();
+    if (error) throw error;
+
+    // Upload mídias
+    for (const m of midiasAtuais) {
+      const path = `${novoReg.id}/${Date.now()}_${m.nome.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
+      const { error: upErr } = await sb.storage.from(BUCKET).upload(path, m.blob, { contentType: m.mime });
+      if (upErr) { console.error('Upload erro:', upErr); continue; }
+      await sb.from('midias').insert({
+        registro_id: novoReg.id,
+        nome: m.nome,
+        tipo: m.tipo,
+        mime: m.mime,
+        tamanho: m.tamanho,
+        storage_path: path
+      });
+    }
+
+    limparForm();
+    toast('✓ Registro salvo com sucesso!', 'success');
+    if (perfil.role === 'admin') await carregarRegistros();
+  } catch (err) {
+    console.error(err);
+    toast('Erro: ' + (err.message || 'falha ao salvar'), 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '💾 Salvar Registro';
+  }
+});
+
+function limparForm() {
+  document.getElementById('formManutencao').reset();
+  midiasAtuais = [];
+  renderPreview();
+  document.getElementById('data').value = new Date().toISOString().slice(0, 10);
+  selecionarCategoria('Manutenção');
+}
+
+// ============================================================
+// LISTA (APENAS ADMIN)
+// ============================================================
+async function carregarRegistros() {
+  const { data, error } = await sb.from('registros').select('*, midias(*)').order('data', { ascending: false });
+  if (error) { console.error(error); return; }
+  registros = data || [];
+  render();
+}
+
+function tipoClass(t) {
+  const m = {
+    'Elétrica':'t-eletrica','Hidráulica':'t-hidraulica','Pintura':'t-pintura',
+    'Limpeza':'t-limpeza','Jardim/Piscina':'t-jardim','Móveis':'t-moveis',
+    'Eletrodoméstico':'t-eletrodomestico','Outros':'t-outros',
+    'Material de Construção':'t-outros','Ferramentas':'t-outros',
+    'Decoração':'t-pintura','Cama/Mesa/Banho':'t-limpeza',
+    'Cozinha/Utensílios':'t-moveis','Jardinagem':'t-jardim',
+    'Iluminação':'t-eletrica','Estrutural/Alvenaria':'t-outros',
+    'Ar-condicionado':'t-eletrodomestico','Telhado':'t-outros'
+  };
+  return m[t] || 't-outros';
+}
+function statusClass(s) {
+  return 's-' + (s||'').toLowerCase().replace(/[áàâãéêíóôõúç ]/g, c => ({'á':'a','à':'a','â':'a','ã':'a','é':'e','ê':'e','í':'i','ó':'o','ô':'o','õ':'o','ú':'u','ç':'c',' ':''}[c] || c));
+}
+
+function render() {
+  const busca = document.getElementById('filtroBusca').value.toLowerCase();
+  const ftipo = document.getElementById('filtroTipo').value;
+  const fstatus = document.getElementById('filtroStatus').value;
+  const fcat = document.getElementById('filtroCategoria').value;
+
+  const filtrados = registros.filter(r => {
+    if (fcat && r.categoria !== fcat) return false;
+    if (ftipo && r.tipo !== ftipo) return false;
+    if (fstatus && r.status !== fstatus) return false;
+    if (busca) {
+      const t = ((r.descricao||'') + ' ' + (r.imovel||'') + ' ' + (r.prestador||'') + ' ' + (r.observacoes||'') + ' ' + (r.nota||'') + ' ' + (r.local_compra||'')).toLowerCase();
+      if (!t.includes(busca)) return false;
+    }
+    return true;
+  });
+
+  const tbody = document.getElementById('tbody');
+  const vazio = document.getElementById('vazio');
+  tbody.innerHTML = '';
+
+  if (filtrados.length === 0) {
+    vazio.style.display = 'block';
+    document.getElementById('tabela').style.display = 'none';
+  } else {
+    vazio.style.display = 'none';
+    document.getElementById('tabela').style.display = 'table';
+    filtrados.forEach(r => tbody.appendChild(criarLinha(r)));
+  }
+
+  document.getElementById('statTotal').textContent = registros.length;
+  document.getElementById('statOrcamento').textContent = brl(registros.reduce((s, r) => s + (parseFloat(r.orcamento) || 0), 0));
+  document.getElementById('statValor').textContent = brl(registros.reduce((s, r) => s + (parseFloat(r.valor) || 0), 0));
+  document.getElementById('statReembolso').textContent = brl(registros.filter(r => r.status !== 'Reembolsado').reduce((s, r) => s + (parseFloat(r.valor) || 0), 0));
+}
+
+function criarLinha(r) {
+  const tr = document.createElement('tr');
+  const diff = (r.orcamento && r.valor) ? r.valor - r.orcamento : 0;
+  const diffHtml = (r.orcamento && r.valor)
+    ? `<div class="${diff > 0 ? 'diff-negative' : 'diff-positive'}">${diff > 0 ? '+' : ''}${brl(diff)}</div>` : '';
+  const catCls = r.categoria === 'Produto' ? 'c-produto' : 'c-manutencao';
+  const catIcon = r.categoria === 'Produto' ? '🛒' : '🔧';
+  const prestadorTexto = r.categoria === 'Produto'
+    ? (r.prestador || r.local_compra || '-') + (r.local_compra && r.prestador ? '<br><small style="color:#718096;">' + escapeHtml(r.local_compra) + '</small>' : '')
+    : (r.prestador || '-');
+
+  tr.innerHTML = `
+    <td>${formatarData(r.data)}</td>
+    <td><span class="cat-badge ${catCls}">${catIcon} ${r.categoria}</span></td>
+    <td><strong>${escapeHtml(r.imovel)}</strong></td>
+    <td><span class="tipo-badge ${tipoClass(r.tipo)}">${escapeHtml(r.tipo)}</span></td>
+    <td style="max-width:280px;">${escapeHtml(r.descricao)}${r.quantidade ? '<br><small style="color:#718096;">Qtd: ' + r.quantidade + '</small>' : ''}${r.observacoes ? '<br><small style="color:#718096;">' + escapeHtml(r.observacoes) + '</small>' : ''}</td>
+    <td>${prestadorTexto}${r.nota ? '<br><small style="color:#718096;">NF: ' + escapeHtml(r.nota) + '</small>' : ''}</td>
+    <td class="money">${r.orcamento ? brl(r.orcamento) : '-'}</td>
+    <td class="money">${brl(r.valor)}${diffHtml}</td>
+    <td><span class="status-badge ${statusClass(r.status)}">${escapeHtml(r.status)}</span></td>
+    <td><div class="media-cell" id="midias-${r.id}"></div></td>
+    <td><button type="button" class="btn-danger" onclick="excluirRegistro('${r.id}')">Excluir</button></td>
+  `;
+  setTimeout(() => carregarMidiasNaLinha(r), 0);
+  return tr;
+}
+
+async function carregarMidiasNaLinha(r) {
+  const c = document.getElementById('midias-' + r.id);
+  if (!c || !r.midias) return;
+  for (const m of r.midias) {
+    const { data: signed } = await sb.storage.from(BUCKET).createSignedUrl(m.storage_path, 3600);
+    if (!signed) continue;
+    if (m.tipo === 'video') {
+      const div = document.createElement('div');
+      div.className = 'media-thumb-video';
+      div.innerHTML = '▶';
+      div.title = m.nome;
+      div.onclick = () => abrirModal(signed.signedUrl, 'video');
+      c.appendChild(div);
+    } else {
+      const img = document.createElement('img');
+      img.className = 'media-thumb';
+      img.src = signed.signedUrl;
+      img.title = m.nome;
+      img.onclick = () => abrirModal(signed.signedUrl, 'image');
+      c.appendChild(img);
+    }
+  }
+}
+
+async function excluirRegistro(id) {
+  if (!confirm('Excluir este registro e todas as suas mídias?')) return;
+  const r = registros.find(x => x.id === id);
+  if (r && r.midias) {
+    for (const m of r.midias) {
+      await sb.storage.from(BUCKET).remove([m.storage_path]);
+    }
+  }
+  await sb.from('registros').delete().eq('id', id);
+  await carregarRegistros();
+  toast('Registro excluído', 'success');
+}
+
+function abrirModal(url, tipo) {
+  const c = document.getElementById('modalContent');
+  c.innerHTML = tipo === 'video'
+    ? `<video src="${url}" controls autoplay></video>`
+    : `<img src="${url}" alt="">`;
+  document.getElementById('modal').classList.add('active');
+}
+function fecharModal() {
+  document.getElementById('modal').classList.remove('active');
+  document.getElementById('modalContent').innerHTML = '';
+}
+
+['filtroBusca','filtroTipo','filtroStatus','filtroCategoria'].forEach(id => {
+  document.getElementById(id).addEventListener('input', render);
+  document.getElementById(id).addEventListener('change', render);
+});
+
+// ============================================================
+// EXPORTAÇÕES (ADMIN)
+// ============================================================
+async function blobDaMidia(m) {
+  const { data, error } = await sb.storage.from(BUCKET).download(m.storage_path);
+  if (error) return null;
+  return data;
+}
+
+async function exportarExcel() {
+  if (registros.length === 0) { toast('Nenhum registro', 'error'); return; }
+  toast('Gerando Excel...', '');
+
+  const dados = registros.map(r => ({
+    'Data': formatarData(r.data), 'Categoria': r.categoria,
+    'Imóvel': r.imovel, 'Tipo': r.tipo, 'Status': r.status,
+    'Descrição': r.descricao, 'Prestador/Fornecedor': r.prestador || '',
+    'Local da Compra': r.local_compra || '', 'Quantidade': r.quantidade || '',
+    'Nota Fiscal/Recibo': r.nota || '',
+    'Orçamento (R$)': r.orcamento || 0, 'Valor Pago (R$)': r.valor || 0,
+    'Diferença (R$)': (r.valor || 0) - (r.orcamento || 0),
+    'Forma de Pagamento': r.pagamento || '',
+    'Observações': r.observacoes || '',
+    'Qtd. Mídias': (r.midias || []).length,
+    'Arquivos de Mídia': (r.midias || []).map(m => m.nome).join('; ')
+  }));
+
+  const wb = XLSX.utils.book_new();
+  const ws1 = XLSX.utils.json_to_sheet(dados);
+  ws1['!cols'] = [{wch:12},{wch:13},{wch:18},{wch:18},{wch:14},{wch:40},{wch:22},{wch:18},{wch:10},{wch:16},{wch:14},{wch:14},{wch:14},{wch:16},{wch:30},{wch:10},{wch:40}];
+  XLSX.utils.book_append_sheet(wb, ws1, 'Registros');
+
+  const buffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+  const temMidias = registros.some(r => (r.midias || []).length > 0);
+  const dataStr = new Date().toISOString().slice(0, 10);
+
+  if (temMidias) {
+    const zip = new JSZip();
+    zip.file(`Manutencoes_${dataStr}.xlsx`, buffer);
+    const pasta = zip.folder('midias');
+    for (const r of registros) {
+      if (!r.midias || r.midias.length === 0) continue;
+      const sub = pasta.folder(`${formatarData(r.data).replace(/\//g,'-')}_${r.imovel.replace(/[^a-zA-Z0-9]/g,'_')}_${r.id.slice(-6)}`);
+      for (const m of r.midias) {
+        const blob = await blobDaMidia(m);
+        if (blob) sub.file(m.nome, blob);
+      }
+    }
+    const out = await zip.generateAsync({ type: 'blob' });
+    baixar(out, `Manutencoes_${dataStr}.zip`);
+  } else {
+    baixar(new Blob([buffer]), `Manutencoes_${dataStr}.xlsx`);
+  }
+  toast('✓ Excel exportado', 'success');
+}
+
+async function exportarPDF() {
+  const busca = document.getElementById('filtroBusca').value.toLowerCase();
+  const ftipo = document.getElementById('filtroTipo').value;
+  const fstatus = document.getElementById('filtroStatus').value;
+  const fcat = document.getElementById('filtroCategoria').value;
+  const dados = registros.filter(r => {
+    if (fcat && r.categoria !== fcat) return false;
+    if (ftipo && r.tipo !== ftipo) return false;
+    if (fstatus && r.status !== fstatus) return false;
+    if (busca) {
+      const t = ((r.descricao||'') + ' ' + (r.imovel||'') + ' ' + (r.prestador||'') + ' ' + (r.observacoes||'') + ' ' + (r.nota||'') + ' ' + (r.local_compra||'')).toLowerCase();
+      if (!t.includes(busca)) return false;
+    }
+    return true;
+  });
+
+  if (dados.length === 0) { toast('Nenhum registro para exportar', 'error'); return; }
+  toast('Gerando PDF...', '');
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+  const W = doc.internal.pageSize.getWidth();
+  const H = doc.internal.pageSize.getHeight();
+  const M = 15;
+
+  doc.setFillColor(102, 126, 234);
+  doc.rect(0, 0, W, 50, 'F');
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(22).setFont('helvetica', 'bold');
+  doc.text('Relatório de Manutenções', M, 25);
+  doc.setFontSize(13).setFont('helvetica', 'normal');
+  doc.text('Casa de Aluguel de Temporada - Prestação de Contas', M, 33);
+  doc.setFontSize(10);
+  doc.text('Gerado em: ' + new Date().toLocaleDateString('pt-BR') + ' às ' + new Date().toLocaleTimeString('pt-BR'), M, 42);
+
+  doc.setTextColor(45, 55, 72);
+  let y = 65;
+  doc.setFontSize(14).setFont('helvetica', 'bold').text('Resumo Geral', M, y);
+  y += 8;
+
+  const totalOrc = dados.reduce((s, r) => s + (parseFloat(r.orcamento) || 0), 0);
+  const totalVal = dados.reduce((s, r) => s + (parseFloat(r.valor) || 0), 0);
+  const reembolso = dados.filter(r => r.status !== 'Reembolsado').reduce((s, r) => s + (parseFloat(r.valor) || 0), 0);
+  const qtdManut = dados.filter(r => r.categoria === 'Manutenção').length;
+  const qtdProd = dados.filter(r => r.categoria === 'Produto').length;
+
+  doc.autoTable({
+    startY: y,
+    body: [
+      ['Total de Registros', dados.length + ' (' + qtdManut + ' manutenções + ' + qtdProd + ' produtos)'],
+      ['Orçamento Total', brl(totalOrc)],
+      ['Valor Pago Total', brl(totalVal)],
+      ['Diferença', brl(totalVal - totalOrc)],
+      ['A Reembolsar', brl(reembolso)]
+    ],
+    theme: 'plain',
+    styles: { fontSize: 10, cellPadding: 2 },
+    columnStyles: { 0: { fontStyle: 'bold', cellWidth: 50 } },
+    margin: { left: M }
+  });
+  y = doc.lastAutoTable.finalY + 8;
+
+  doc.setFontSize(14).setFont('helvetica', 'bold').text('Lista de Registros', M, y);
+  y += 4;
+  doc.autoTable({
+    startY: y,
+    head: [['Data','Cat','Imóvel','Tipo','Descrição','Orçam.','Valor','Status']],
+    body: dados.map(r => [formatarData(r.data), r.categoria.substring(0,4), r.imovel, r.tipo, (r.descricao||'').substring(0,60), r.orcamento ? brl(r.orcamento) : '-', brl(r.valor||0), r.status]),
+    theme: 'striped',
+    styles: { fontSize: 8, cellPadding: 2 },
+    headStyles: { fillColor: [102, 126, 234], textColor: 255 },
+    margin: { left: M, right: M }
+  });
+
+  for (const r of dados) {
+    doc.addPage();
+    y = M;
+    const corCat = r.categoria === 'Produto' ? [21, 94, 117] : [91, 33, 182];
+    doc.setFillColor(...corCat);
+    doc.rect(0, 0, W, 22, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(12).setFont('helvetica', 'bold').text(r.categoria.toUpperCase() + ' - ' + r.tipo, M, 10);
+    doc.setFontSize(10).setFont('helvetica', 'normal').text(formatarData(r.data) + '  |  ' + r.imovel, M, 17);
+    doc.setTextColor(45, 55, 72);
+    y = 30;
+
+    const linhas = [
+      ['Data', formatarData(r.data)],['Categoria', r.categoria],['Imóvel', r.imovel],
+      ['Tipo', r.tipo],['Status', r.status],['Prestador/Fornecedor', r.prestador || '-']
+    ];
+    if (r.local_compra) linhas.push(['Local da Compra', r.local_compra]);
+    if (r.quantidade) linhas.push(['Quantidade', String(r.quantidade)]);
+    if (r.nota) linhas.push(['Nota Fiscal', r.nota]);
+    linhas.push(['Forma de Pagamento', r.pagamento || '-']);
+    linhas.push(['Orçamento', r.orcamento ? brl(r.orcamento) : '-']);
+    linhas.push(['Valor Pago', brl(r.valor || 0)]);
+    if (r.orcamento && r.valor) linhas.push(['Diferença', brl(r.valor - r.orcamento)]);
+
+    doc.autoTable({
+      startY: y, body: linhas, theme: 'striped',
+      styles: { fontSize: 9, cellPadding: 2 },
+      columnStyles: { 0: { fontStyle: 'bold', cellWidth: 45, fillColor: [247, 250, 252] } },
+      margin: { left: M, right: M }
+    });
+    y = doc.lastAutoTable.finalY + 6;
+
+    doc.setFontSize(10).setFont('helvetica', 'bold').text('Descrição:', M, y);
+    y += 5;
+    doc.setFont('helvetica', 'normal');
+    const descLines = doc.splitTextToSize(r.descricao || '-', W - 2 * M);
+    doc.text(descLines, M, y);
+    y += descLines.length * 5 + 3;
+
+    if (r.observacoes) {
+      doc.setFont('helvetica', 'bold').text('Observações:', M, y);
+      y += 5;
+      doc.setFont('helvetica', 'normal');
+      const obsLines = doc.splitTextToSize(r.observacoes, W - 2 * M);
+      doc.text(obsLines, M, y);
+      y += obsLines.length * 5 + 3;
+    }
+
+    if (r.midias && r.midias.length > 0) {
+      y += 4;
+      if (y > H - 60) { doc.addPage(); y = M; }
+      doc.setFontSize(11).setFont('helvetica', 'bold').text('📷 Mídias Anexadas (' + r.midias.length + ')', M, y);
+      y += 6;
+      const cols = 2, gap = 5;
+      const imgW = (W - 2 * M - gap * (cols - 1)) / cols;
+      const imgH = imgW * 0.75;
+      let col = 0, xPos = M;
+
+      for (const m of r.midias) {
+        if (y + imgH + 12 > H - M) { doc.addPage(); y = M; col = 0; xPos = M; }
+        try {
+          const blob = await blobDaMidia(m);
+          if (!blob) continue;
+          const dataUrl = await blobParaImagem(blob, m.tipo);
+          if (dataUrl) {
+            doc.addImage(dataUrl, 'JPEG', xPos, y, imgW, imgH, undefined, 'FAST');
+            doc.setFontSize(8).setFont('helvetica', 'normal').setTextColor(113, 128, 150);
+            const label = (m.tipo === 'video' ? '🎥 ' : '📷 ') + m.nome;
+            const labelLines = doc.splitTextToSize(label, imgW);
+            doc.text(labelLines[0] || label, xPos, y + imgH + 4);
+            doc.setTextColor(45, 55, 72);
+          }
+        } catch (e) { console.error(e); }
+        col++;
+        if (col >= cols) { col = 0; xPos = M; y += imgH + 12; }
+        else { xPos += imgW + gap; }
+      }
+      if (col !== 0) y += imgH + 12;
+    }
+  }
+
+  const pageCount = doc.internal.getNumberOfPages();
+  for (let i = 1; i <= pageCount; i++) {
+    doc.setPage(i);
+    doc.setFontSize(8).setTextColor(160, 174, 192);
+    doc.text('Página ' + i + ' de ' + pageCount, W - M, H - 8, { align: 'right' });
+    doc.text('Manutenções - Casa de Temporada', M, H - 8);
+  }
+
+  doc.save(`Relatorio_Manutencoes_${new Date().toISOString().slice(0,10)}.pdf`);
+  toast('✓ PDF exportado', 'success');
+}
+
+function blobParaImagem(blob, tipo) {
+  return new Promise((resolve) => {
+    if (tipo === 'video') {
+      const video = document.createElement('video');
+      video.preload = 'metadata';
+      video.muted = true; video.playsInline = true;
+      const url = URL.createObjectURL(blob);
+      video.src = url;
+      video.onloadeddata = () => { video.currentTime = Math.min(0.5, (video.duration || 1) / 2); };
+      video.onseeked = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth || 640;
+        canvas.height = video.videoHeight || 480;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = 'rgba(0,0,0,0.5)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = 'white';
+        ctx.beginPath();
+        const cx = canvas.width / 2, cy = canvas.height / 2, r = Math.min(canvas.width, canvas.height) * 0.15;
+        ctx.moveTo(cx - r * 0.5, cy - r);
+        ctx.lineTo(cx - r * 0.5, cy + r);
+        ctx.lineTo(cx + r, cy);
+        ctx.closePath(); ctx.fill();
+        URL.revokeObjectURL(url);
+        resolve(canvas.toDataURL('image/jpeg', 0.7));
+      };
+      video.onerror = () => { URL.revokeObjectURL(url); resolve(null); };
+      setTimeout(() => { URL.revokeObjectURL(url); resolve(null); }, 8000);
+    } else {
+      const img = new Image();
+      const url = URL.createObjectURL(blob);
+      img.onload = () => {
+        const maxDim = 1200;
+        let w = img.width, h = img.height;
+        if (w > maxDim || h > maxDim) { const r = Math.min(maxDim / w, maxDim / h); w *= r; h *= r; }
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        URL.revokeObjectURL(url);
+        resolve(canvas.toDataURL('image/jpeg', 0.8));
+      };
+      img.onerror = () => { URL.revokeObjectURL(url); resolve(null); };
+      img.src = url;
+    }
+  });
+}
+
+function baixar(blob, nome) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = nome; a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+// ============================================================
+// START
+// ============================================================
+init();
+</script>
+</body>
+</html>
