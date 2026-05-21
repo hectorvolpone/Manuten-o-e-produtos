@@ -9,14 +9,25 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
+  :root {
+    --sereia-dark: #345868;       /* azul petróleo */
+    --sereia-teal: #04959a;       /* teal principal */
+    --sereia-green: #3cd09f;      /* verde menta */
+    --sereia-light: #8dfcca;      /* verde menta claro */
+    --sereia-orange: #f7931e;     /* laranja */
+    --sereia-white: #ffffff;
+  }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: linear-gradient(135deg, #345868 0%, #04959a 100%);
     min-height: 100vh;
     padding: 20px;
-    color: #2d3748;
+    color: #345868;
   }
   .container { max-width: 1200px; margin: 0 auto; }
   .container-narrow { max-width: 900px; margin: 0 auto; }
@@ -38,14 +49,18 @@
   }
   .login-logo {
     text-align: center;
-    font-size: 48px;
-    margin-bottom: 8px;
+    margin-bottom: 12px;
   }
+  .login-logo svg { width: 84px; height: 84px; }
+  .header-logo svg { width: 44px; height: 44px; vertical-align: middle; margin-right: 10px; }
+  .header-title-wrap { display: flex; align-items: center; }
   .login-box h1 {
-    font-size: 24px;
+    font-size: 26px;
     text-align: center;
     margin-bottom: 6px;
-    color: #2d3748;
+    color: #345868;
+    font-weight: 700;
+    letter-spacing: -0.3px;
   }
   .login-box .subtitle {
     text-align: center;
@@ -77,7 +92,7 @@
     flex-wrap: wrap;
     gap: 16px;
   }
-  header h1 { font-size: 22px; color: #2d3748; }
+  header h1 { font-size: 22px; color: #345868; font-weight: 700; letter-spacing: -0.3px; }
   header .subtitle { color: #718096; font-size: 13px; }
   .user-info {
     display: flex;
@@ -92,8 +107,8 @@
     font-weight: 700;
     text-transform: uppercase;
   }
-  .role-admin { background: #fbbf24; color: #78350f; }
-  .role-operador { background: #93c5fd; color: #1e3a8a; }
+  .role-admin { background: #f7931e; color: white; }
+  .role-operador { background: #8dfcca; color: #0d3d2e; }
 
   /* ===== CARDS / GERAL ===== */
   .card {
@@ -106,10 +121,12 @@
   .card h2 {
     font-size: 20px;
     margin-bottom: 20px;
-    color: #2d3748;
+    color: #345868;
     display: flex;
     align-items: center;
     gap: 8px;
+    font-weight: 700;
+    letter-spacing: -0.2px;
   }
   .form-grid {
     display: grid;
@@ -138,8 +155,8 @@
   }
   input:focus, select:focus, textarea:focus {
     outline: none;
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    border-color: #04959a;
+    box-shadow: 0 0 0 3px rgba(4, 149, 154, 0.15);
   }
   textarea { resize: vertical; min-height: 80px; }
 
@@ -153,10 +170,10 @@
     background: #f7fafc;
     display: block;
   }
-  .file-input-wrapper:hover { border-color: #667eea; background: #edf2f7; }
+  .file-input-wrapper:hover { border-color: #04959a; background: #e6f7f8; }
   .file-input-wrapper input { display: none; }
   .file-input-label { color: #4a5568; font-size: 14px; }
-  .file-input-label strong { color: #667eea; }
+  .file-input-label strong { color: #04959a; }
 
   .preview-grid {
     display: grid;
@@ -203,13 +220,13 @@
   }
   button:disabled { opacity: 0.6; cursor: not-allowed; }
   .btn-primary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #04959a 0%, #345868 100%);
     color: white; width: 100%; justify-content: center;
   }
-  .btn-primary:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(102, 126, 234, 0.3); }
+  .btn-primary:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(4, 149, 154, 0.35); }
   .btn-primary.btn-inline { width: auto; }
-  .btn-success { background: #38a169; color: white; }
-  .btn-success:hover:not(:disabled) { background: #2f855a; }
+  .btn-success { background: #3cd09f; color: #0d3d2e; }
+  .btn-success:hover:not(:disabled) { background: #2cb586; color: white; }
   .btn-secondary { background: #edf2f7; color: #4a5568; }
   .btn-secondary:hover:not(:disabled) { background: #e2e8f0; }
   .btn-danger { background: #fed7d7; color: #c53030; padding: 6px 12px; font-size: 12px; }
@@ -230,20 +247,23 @@
     box-shadow: 0 4px 20px rgba(0,0,0,0.08);
   }
   .stat .label { font-size: 12px; color: #718096; text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px; }
-  .stat .value { font-size: 24px; font-weight: 700; color: #2d3748; margin-top: 4px; }
-  .stat.green .value { color: #38a169; }
-  .stat.orange .value { color: #dd6b20; }
-  .stat.purple .value { color: #805ad5; }
+  .stat .value { font-size: 24px; font-weight: 700; color: #345868; margin-top: 4px; letter-spacing: -0.5px; }
+  .stat.green .value { color: #04959a; }
+  .stat.orange .value { color: #f7931e; }
+  .stat.purple .value { color: #3cd09f; }
 
   table { width: 100%; border-collapse: collapse; font-size: 13px; }
   th {
     text-align: left; padding: 12px;
-    background: #f7fafc; color: #4a5568; font-weight: 600;
-    border-bottom: 2px solid #e2e8f0;
+    background: #345868; color: white; font-weight: 600;
+    border-bottom: 2px solid #04959a;
     position: sticky; top: 0;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
   }
   td { padding: 12px; border-bottom: 1px solid #edf2f7; vertical-align: top; }
-  tr:hover td { background: #f7fafc; }
+  tr:hover td { background: #e6f7f8; }
   .tipo-badge {
     display: inline-block; padding: 3px 10px;
     border-radius: 12px; font-size: 11px;
@@ -271,8 +291,96 @@
     border-radius: 10px; font-size: 10px;
     font-weight: 700; text-transform: uppercase; margin-right: 4px;
   }
-  .c-manutencao { background: #ddd6fe; color: #5b21b6; }
-  .c-produto { background: #cffafe; color: #155e75; }
+  .c-manutencao { background: #8dfcca; color: #0d3d2e; }
+  .c-produto { background: #ffe4b8; color: #7a4310; }
+  .c-lavanderia { background: #b8e6e8; color: #04575a; }
+
+  /* Lista de itens de lavanderia */
+  .lavanderia-wrapper {
+    background: #f0fcfc;
+    border: 1px solid #b8e6e8;
+    border-radius: 10px;
+    padding: 16px;
+    margin-top: 4px;
+  }
+  .item-lav-header {
+    display: grid;
+    grid-template-columns: 2fr 90px 110px 110px 36px;
+    gap: 8px;
+    padding: 0 6px 8px 6px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #04575a;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
+  .item-lav {
+    display: grid;
+    grid-template-columns: 2fr 90px 110px 110px 36px;
+    gap: 8px;
+    align-items: center;
+    padding: 6px;
+    background: white;
+    border-radius: 6px;
+    margin-bottom: 6px;
+    border: 1px solid #e2e8f0;
+  }
+  .item-lav input {
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+  .item-lav .subtotal {
+    font-weight: 600;
+    color: #345868;
+    text-align: right;
+    padding: 0 6px;
+    font-size: 13px;
+  }
+  .item-lav .btn-remove {
+    background: #fed7d7;
+    color: #c53030;
+    border: none;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 18px;
+    line-height: 1;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .item-lav .btn-remove:hover { background: #feb2b2; }
+  .lav-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 2px solid #b8e6e8;
+  }
+  .lav-total {
+    font-size: 18px;
+    font-weight: 700;
+    color: #04959a;
+  }
+  .btn-add-item {
+    background: #04959a;
+    color: white;
+    padding: 8px 16px;
+    font-size: 13px;
+    border-radius: 6px;
+  }
+  .btn-add-item:hover { background: #037a7f; }
+  @media (max-width: 640px) {
+    .item-lav, .item-lav-header {
+      grid-template-columns: 1fr 70px 90px 90px 30px;
+      gap: 4px;
+      font-size: 11px;
+    }
+    .item-lav input { padding: 6px 8px; font-size: 12px; }
+  }
 
   .empty { text-align: center; padding: 60px 20px; color: #a0aec0; }
   .empty .icon { font-size: 48px; margin-bottom: 12px; }
@@ -314,16 +422,17 @@
 
   .toast {
     position: fixed; bottom: 30px; right: 30px;
-    background: #2d3748; color: white;
+    background: #345868; color: white;
     padding: 14px 22px; border-radius: 8px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    box-shadow: 0 4px 20px rgba(52, 88, 104, 0.3);
     transform: translateY(100px); opacity: 0;
     transition: all 0.3s; z-index: 999;
+    font-weight: 500;
   }
   .toast.show { transform: translateY(0); opacity: 1; }
-  .toast.success { background: #38a169; }
+  .toast.success { background: #04959a; }
   .toast.error { background: #e53e3e; }
-  .money { font-weight: 600; color: #2d3748; }
+  .money { font-weight: 600; color: #345868; }
   .diff-positive { color: #38a169; font-size: 11px; }
   .diff-negative { color: #e53e3e; font-size: 11px; }
 
@@ -342,9 +451,9 @@
     transition: all 0.2s;
   }
   .cat-btn.active {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #04959a 0%, #345868 100%);
     color: white;
-    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 2px 8px rgba(4, 149, 154, 0.35);
   }
 
   .loader {
@@ -381,9 +490,23 @@
 <!-- ====== TELA DE LOGIN ====== -->
 <div id="loginScreen" class="login-wrapper">
   <div class="login-box">
-    <div class="login-logo">🏠</div>
-    <h1>Manutenções</h1>
-    <div class="subtitle">Casa de Aluguel de Temporada</div>
+    <div class="login-logo">
+      <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="60" cy="60" r="56" fill="none" stroke="#04959a" stroke-width="3"/>
+        <circle cx="35" cy="38" r="3" fill="#345868"/>
+        <path d="M20 45 Q24 42 28 45" fill="none" stroke="#345868" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M30 50 Q34 47 38 50" fill="none" stroke="#345868" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M22 70 Q40 64 60 70 Q80 76 98 70" fill="none" stroke="#04959a" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M22 80 Q40 74 60 80 Q80 86 98 80" fill="none" stroke="#04959a" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M22 90 Q40 84 60 90 Q80 96 98 90" fill="none" stroke="#04959a" stroke-width="2.5" stroke-linecap="round"/>
+        <ellipse cx="68" cy="55" rx="6" ry="14" fill="#345868"/>
+        <path d="M62 50 Q55 45 50 48 Q55 55 60 58" fill="#345868"/>
+        <path d="M70 68 Q75 75 82 78 Q88 75 85 70" fill="#3cd09f" stroke="#345868" stroke-width="1"/>
+        <circle cx="80" cy="38" r="6" fill="#f7931e"/>
+      </svg>
+    </div>
+    <h1>Agência da Sereia</h1>
+    <div class="subtitle">Manutenções · Casa de Temporada</div>
     <div class="login-error" id="loginError"></div>
     <form id="loginForm">
       <div class="form-group" style="margin-bottom:14px;">
@@ -402,9 +525,22 @@
 <!-- ====== APP ====== -->
 <div id="appScreen" class="container hidden">
   <header>
-    <div>
-      <h1>🏠 Manutenções e Reembolsos</h1>
-      <div class="subtitle">Casa de Aluguel de Temporada</div>
+    <div class="header-title-wrap">
+      <span class="header-logo">
+        <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="60" cy="60" r="56" fill="none" stroke="#04959a" stroke-width="3"/>
+          <path d="M22 70 Q40 64 60 70 Q80 76 98 70" fill="none" stroke="#04959a" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M22 80 Q40 74 60 80 Q80 86 98 80" fill="none" stroke="#04959a" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M22 90 Q40 84 60 90 Q80 96 98 90" fill="none" stroke="#04959a" stroke-width="2.5" stroke-linecap="round"/>
+          <ellipse cx="68" cy="55" rx="6" ry="14" fill="#345868"/>
+          <path d="M70 68 Q75 75 82 78 Q88 75 85 70" fill="#3cd09f" stroke="#345868" stroke-width="1"/>
+          <circle cx="80" cy="38" r="6" fill="#f7931e"/>
+        </svg>
+      </span>
+      <div>
+        <h1>Agência da Sereia</h1>
+        <div class="subtitle">Manutenções e Reembolsos</div>
+      </div>
     </div>
     <div class="user-info">
       <span id="userEmail" style="color:#4a5568;"></span>
@@ -438,6 +574,7 @@
     <div class="toggle-categoria">
       <button type="button" class="cat-btn active" data-cat="Manutenção" onclick="selecionarCategoria('Manutenção')">🔧 Manutenção</button>
       <button type="button" class="cat-btn" data-cat="Produto" onclick="selecionarCategoria('Produto')">🛒 Produto</button>
+      <button type="button" class="cat-btn" data-cat="Lavanderia" onclick="selecionarCategoria('Lavanderia')">👕 Lavanderia</button>
     </div>
     <form id="formManutencao">
       <input type="hidden" id="categoria" value="Manutenção">
@@ -510,6 +647,45 @@
           <label>Observações</label>
           <textarea id="observacoes" placeholder="Informações adicionais..."></textarea>
         </div>
+
+        <div class="form-group full" id="grpLavanderia" style="display:none;">
+          <label>👕 Itens da Lavanderia</label>
+          <div class="lavanderia-wrapper">
+            <div class="item-lav-header">
+              <div>Item / Peça</div>
+              <div style="text-align:center;">Qtd</div>
+              <div style="text-align:center;">Valor Unit.</div>
+              <div style="text-align:right;">Subtotal</div>
+              <div></div>
+            </div>
+            <div id="itensLavanderia"></div>
+            <div class="lav-footer">
+              <button type="button" class="btn-add-item" onclick="adicionarItemLavanderia()">+ Adicionar item</button>
+              <div class="lav-total" id="totalLavanderia">Total: R$ 0,00</div>
+            </div>
+          </div>
+          <datalist id="sugestoesLavanderia">
+            <option value="Lençol Casal">
+            <option value="Lençol Solteiro">
+            <option value="Lençol Queen">
+            <option value="Lençol King">
+            <option value="Fronha">
+            <option value="Toalha de Banho">
+            <option value="Toalha de Rosto">
+            <option value="Toalha de Piso">
+            <option value="Toalha de Mesa">
+            <option value="Edredom Casal">
+            <option value="Edredom Solteiro">
+            <option value="Cobre-leito">
+            <option value="Capa de Travesseiro">
+            <option value="Capa de Edredom">
+            <option value="Manta">
+            <option value="Pano de Prato">
+            <option value="Roupão">
+            <option value="Tapete de Banheiro">
+            <option value="Cortina">
+          </datalist>
+        </div>
         <div class="form-group full">
           <label>📷 Fotos e 🎥 Vídeos</label>
           <label class="file-input-wrapper" for="midia">
@@ -538,6 +714,7 @@
         <option value="">Todas as categorias</option>
         <option value="Manutenção">Manutenção</option>
         <option value="Produto">Produto</option>
+        <option value="Lavanderia">Lavanderia</option>
       </select>
       <select id="filtroTipo">
         <option value="">Todos os tipos</option>
@@ -601,6 +778,9 @@ const CASAS = ["Bangalô Sol","Canto da Sereia - Suíte 1","Canto da Sereia - Su
 
 const TIPOS_MANUTENCAO = ["Elétrica","Hidráulica","Pintura","Limpeza","Jardim/Piscina","Móveis","Eletrodoméstico","Estrutural/Alvenaria","Ar-condicionado","Telhado","Outros"];
 const TIPOS_PRODUTO = ["Material de Construção","Ferramentas","Eletrodoméstico","Móveis","Decoração","Cama/Mesa/Banho","Limpeza","Cozinha/Utensílios","Jardinagem","Iluminação","Hidráulica","Elétrica","Outros"];
+const TIPOS_LAVANDERIA = ["Lavagem Simples","Lavagem + Passar","Lavagem a Seco","Higienização","Coleta","Entrega","Coleta + Entrega"];
+
+let itensLavanderia = [];
 
 let sb = null;
 let usuario = null;
@@ -650,12 +830,17 @@ async function verificarSessao() {
 }
 
 async function carregarPerfil() {
-  const { data, error } = await sb.from('profiles').select('*').eq('id', usuario.id).single();
+  const { data, error } = await sb.from('profiles').select('id, nome, role').eq('id', usuario.id).maybeSingle();
   if (error) {
     console.error('Erro ao carregar perfil:', error);
     perfil = { role: 'operador', nome: usuario.email };
+    toast('Aviso: usando perfil padrão. ' + error.message, 'error');
+  } else if (!data) {
+    console.warn('Perfil não encontrado para', usuario.email, '- criando como operador');
+    perfil = { role: 'operador', nome: usuario.email };
   } else {
     perfil = data;
+    console.log('Perfil carregado:', perfil);
   }
 }
 
@@ -756,26 +941,102 @@ function selecionarCategoria(cat) {
     b.classList.toggle('active', b.dataset.cat === cat);
   });
   const isProduto = cat === 'Produto';
-  document.getElementById('labelTipo').innerHTML = (isProduto ? 'Categoria do Produto' : 'Tipo de Manutenção') + ' <span class="req">*</span>';
-  document.getElementById('labelDescricao').innerHTML = (isProduto ? 'Descrição do Produto' : 'Descrição do Serviço') + ' <span class="req">*</span>';
-  document.getElementById('labelPrestador').textContent = isProduto ? 'Fornecedor / Marca' : 'Prestador de Serviço';
-  document.getElementById('prestador').placeholder = isProduto ? 'Ex: Tramontina, Brastemp...' : 'Nome do profissional/empresa';
-  document.getElementById('descricao').placeholder = isProduto ? 'Descreva o produto comprado...' : 'Detalhe o serviço realizado...';
+  const isLavanderia = cat === 'Lavanderia';
+
+  const labelTipo = isProduto ? 'Categoria do Produto' : (isLavanderia ? 'Tipo de Serviço' : 'Tipo de Manutenção');
+  const labelDesc = isProduto ? 'Descrição do Produto' : (isLavanderia ? 'Observações do Serviço' : 'Descrição do Serviço');
+  const labelPrest = isProduto ? 'Fornecedor / Marca' : (isLavanderia ? 'Lavanderia / Prestador' : 'Prestador de Serviço');
+
+  document.getElementById('labelTipo').innerHTML = labelTipo + ' <span class="req">*</span>';
+  document.getElementById('labelDescricao').innerHTML = labelDesc + (isLavanderia ? '' : ' <span class="req">*</span>');
+  document.getElementById('labelPrestador').textContent = labelPrest;
+
+  document.getElementById('descricao').required = !isLavanderia;
+  document.getElementById('prestador').placeholder = isProduto ? 'Ex: Tramontina, Brastemp...'
+    : (isLavanderia ? 'Ex: Lavanderia Sereia, etc.' : 'Nome do profissional/empresa');
+  document.getElementById('descricao').placeholder = isProduto ? 'Descreva o produto comprado...'
+    : (isLavanderia ? 'Ex: Roupa de cama do final de semana...' : 'Detalhe o serviço realizado...');
+
   document.getElementById('grpQuantidade').style.display = isProduto ? 'flex' : 'none';
   document.getElementById('grpLocalCompra').style.display = isProduto ? 'flex' : 'none';
+  document.getElementById('grpLavanderia').style.display = isLavanderia ? 'flex' : 'none';
+
+  // Em lavanderia, o "valor" é calculado pelos itens - bloqueia edição manual
+  const inputValor = document.getElementById('valor');
+  if (isLavanderia) {
+    inputValor.readOnly = true;
+    inputValor.style.background = '#f0fcfc';
+    if (itensLavanderia.length === 0) adicionarItemLavanderia();
+  } else {
+    inputValor.readOnly = false;
+    inputValor.style.background = '';
+  }
 
   const sel = document.getElementById('tipo');
   const atual = sel.value;
-  const lista = isProduto ? TIPOS_PRODUTO : TIPOS_MANUTENCAO;
+  const lista = isProduto ? TIPOS_PRODUTO : (isLavanderia ? TIPOS_LAVANDERIA : TIPOS_MANUTENCAO);
   sel.innerHTML = '<option value="">Selecione...</option>' + lista.map(t => `<option value="${t}">${t}</option>`).join('');
   if (lista.includes(atual)) sel.value = atual;
+}
+
+// ============================================================
+// LAVANDERIA - GESTÃO DE ITENS
+// ============================================================
+function adicionarItemLavanderia(item = '', qtd = 1, valor = 0) {
+  itensLavanderia.push({ item, quantidade: qtd, valor_unitario: valor });
+  renderItensLavanderia();
+}
+function removerItemLavanderia(i) {
+  itensLavanderia.splice(i, 1);
+  renderItensLavanderia();
+}
+function atualizarItemLavanderia(i, campo, valor) {
+  if (campo === 'item') {
+    itensLavanderia[i].item = valor;
+  } else {
+    itensLavanderia[i][campo] = parseFloat(valor) || 0;
+    // atualiza só o subtotal sem re-renderizar (mantém foco)
+    const sub = document.querySelector(`#itensLavanderia .item-lav[data-i="${i}"] .subtotal`);
+    if (sub) {
+      const it = itensLavanderia[i];
+      sub.textContent = brl((parseFloat(it.quantidade) || 0) * (parseFloat(it.valor_unitario) || 0));
+    }
+    calcularTotalLavanderia();
+  }
+}
+function calcularTotalLavanderia() {
+  const total = itensLavanderia.reduce((s, it) => s + (parseFloat(it.quantidade) || 0) * (parseFloat(it.valor_unitario) || 0), 0);
+  document.getElementById('totalLavanderia').textContent = 'Total: ' + brl(total);
+  document.getElementById('valor').value = total.toFixed(2);
+}
+function renderItensLavanderia() {
+  const c = document.getElementById('itensLavanderia');
+  c.innerHTML = '';
+  itensLavanderia.forEach((it, i) => {
+    const div = document.createElement('div');
+    div.className = 'item-lav';
+    div.dataset.i = i;
+    const sub = (parseFloat(it.quantidade) || 0) * (parseFloat(it.valor_unitario) || 0);
+    div.innerHTML = `
+      <input type="text" list="sugestoesLavanderia" value="${escapeHtml(it.item || '')}"
+        placeholder="Ex: Lençol Casal" oninput="atualizarItemLavanderia(${i},'item',this.value)">
+      <input type="number" step="1" min="0" value="${it.quantidade}"
+        placeholder="0" oninput="atualizarItemLavanderia(${i},'quantidade',this.value)" style="text-align:center;">
+      <input type="number" step="0.01" min="0" value="${it.valor_unitario}"
+        placeholder="0,00" oninput="atualizarItemLavanderia(${i},'valor_unitario',this.value)" style="text-align:right;">
+      <span class="subtotal">${brl(sub)}</span>
+      <button type="button" class="btn-remove" onclick="removerItemLavanderia(${i})" title="Remover">×</button>
+    `;
+    c.appendChild(div);
+  });
+  calcularTotalLavanderia();
 }
 
 function popularListas() {
   const dl = document.getElementById('listaCasas');
   dl.innerHTML = CASAS.map(c => `<option value="${c.replace(/"/g, '&quot;')}">`).join('');
   const ft = document.getElementById('filtroTipo');
-  const todos = [...new Set([...TIPOS_MANUTENCAO, ...TIPOS_PRODUTO])].sort();
+  const todos = [...new Set([...TIPOS_MANUTENCAO, ...TIPOS_PRODUTO, ...TIPOS_LAVANDERIA])].sort();
   ft.innerHTML = '<option value="">Todos os tipos</option>' + todos.map(t => `<option value="${t}">${t}</option>`).join('');
 }
 
@@ -821,8 +1082,19 @@ document.getElementById('formManutencao').addEventListener('submit', async (e) =
   btn.innerHTML = '<span class="loader"></span> Salvando...';
 
   try {
+    const cat = document.getElementById('categoria').value;
+    const isLav = cat === 'Lavanderia';
+    const itensValidos = isLav ? itensLavanderia.filter(it => it.item && (parseFloat(it.quantidade) || 0) > 0) : [];
+
+    if (isLav && itensValidos.length === 0) {
+      toast('Adicione ao menos um item à lavanderia', 'error');
+      document.getElementById('btnSalvar').disabled = false;
+      document.getElementById('btnSalvar').innerHTML = '💾 Salvar Registro';
+      return;
+    }
+
     const reg = {
-      categoria: document.getElementById('categoria').value,
+      categoria: cat,
       data: document.getElementById('data').value,
       imovel: document.getElementById('imovel').value.trim(),
       tipo: document.getElementById('tipo').value,
@@ -834,8 +1106,9 @@ document.getElementById('formManutencao').addEventListener('submit', async (e) =
       orcamento: parseFloat(document.getElementById('orcamento').value) || 0,
       valor: parseFloat(document.getElementById('valor').value) || 0,
       pagamento: document.getElementById('pagamento').value || null,
-      descricao: document.getElementById('descricao').value.trim(),
+      descricao: document.getElementById('descricao').value.trim() || (isLav ? 'Serviço de lavanderia' : ''),
       observacoes: document.getElementById('observacoes').value.trim() || null,
+      itens: itensValidos,
       criado_por: usuario.id
     };
 
@@ -872,7 +1145,9 @@ document.getElementById('formManutencao').addEventListener('submit', async (e) =
 function limparForm() {
   document.getElementById('formManutencao').reset();
   midiasAtuais = [];
+  itensLavanderia = [];
   renderPreview();
+  renderItensLavanderia();
   document.getElementById('data').value = new Date().toISOString().slice(0, 10);
   selecionarCategoria('Manutenção');
 }
@@ -945,18 +1220,21 @@ function criarLinha(r) {
   const diff = (r.orcamento && r.valor) ? r.valor - r.orcamento : 0;
   const diffHtml = (r.orcamento && r.valor)
     ? `<div class="${diff > 0 ? 'diff-negative' : 'diff-positive'}">${diff > 0 ? '+' : ''}${brl(diff)}</div>` : '';
-  const catCls = r.categoria === 'Produto' ? 'c-produto' : 'c-manutencao';
-  const catIcon = r.categoria === 'Produto' ? '🛒' : '🔧';
+  const catCls = r.categoria === 'Produto' ? 'c-produto' : (r.categoria === 'Lavanderia' ? 'c-lavanderia' : 'c-manutencao');
+  const catIcon = r.categoria === 'Produto' ? '🛒' : (r.categoria === 'Lavanderia' ? '👕' : '🔧');
   const prestadorTexto = r.categoria === 'Produto'
     ? (r.prestador || r.local_compra || '-') + (r.local_compra && r.prestador ? '<br><small style="color:#718096;">' + escapeHtml(r.local_compra) + '</small>' : '')
     : (r.prestador || '-');
+  const totalItensLav = (r.itens || []).reduce((s, it) => s + (parseFloat(it.quantidade) || 0), 0);
+  const resumoLav = r.categoria === 'Lavanderia' && r.itens && r.itens.length
+    ? `<br><small style="color:#04959a;font-weight:600;">${r.itens.length} item(ns), ${totalItensLav} peças</small>` : '';
 
   tr.innerHTML = `
     <td>${formatarData(r.data)}</td>
     <td><span class="cat-badge ${catCls}">${catIcon} ${r.categoria}</span></td>
     <td><strong>${escapeHtml(r.imovel)}</strong></td>
     <td><span class="tipo-badge ${tipoClass(r.tipo)}">${escapeHtml(r.tipo)}</span></td>
-    <td style="max-width:280px;">${escapeHtml(r.descricao)}${r.quantidade ? '<br><small style="color:#718096;">Qtd: ' + r.quantidade + '</small>' : ''}${r.observacoes ? '<br><small style="color:#718096;">' + escapeHtml(r.observacoes) + '</small>' : ''}</td>
+    <td style="max-width:280px;">${escapeHtml(r.descricao)}${r.quantidade ? '<br><small style="color:#718096;">Qtd: ' + r.quantidade + '</small>' : ''}${resumoLav}${r.observacoes ? '<br><small style="color:#718096;">' + escapeHtml(r.observacoes) + '</small>' : ''}</td>
     <td>${prestadorTexto}${r.nota ? '<br><small style="color:#718096;">NF: ' + escapeHtml(r.nota) + '</small>' : ''}</td>
     <td class="money">${r.orcamento ? brl(r.orcamento) : '-'}</td>
     <td class="money">${brl(r.valor)}${diffHtml}</td>
@@ -1035,24 +1313,55 @@ async function exportarExcel() {
   if (registros.length === 0) { toast('Nenhum registro', 'error'); return; }
   toast('Gerando Excel...', '');
 
-  const dados = registros.map(r => ({
-    'Data': formatarData(r.data), 'Categoria': r.categoria,
-    'Imóvel': r.imovel, 'Tipo': r.tipo, 'Status': r.status,
-    'Descrição': r.descricao, 'Prestador/Fornecedor': r.prestador || '',
-    'Local da Compra': r.local_compra || '', 'Quantidade': r.quantidade || '',
-    'Nota Fiscal/Recibo': r.nota || '',
-    'Orçamento (R$)': r.orcamento || 0, 'Valor Pago (R$)': r.valor || 0,
-    'Diferença (R$)': (r.valor || 0) - (r.orcamento || 0),
-    'Forma de Pagamento': r.pagamento || '',
-    'Observações': r.observacoes || '',
-    'Qtd. Mídias': (r.midias || []).length,
-    'Arquivos de Mídia': (r.midias || []).map(m => m.nome).join('; ')
-  }));
+  const dados = registros.map(r => {
+    const totalPecas = (r.itens || []).reduce((s, it) => s + (parseFloat(it.quantidade) || 0), 0);
+    const itensResumo = (r.itens || []).map(it => `${it.quantidade}x ${it.item} (${brl((parseFloat(it.quantidade)||0)*(parseFloat(it.valor_unitario)||0))})`).join('; ');
+    return {
+      'Data': formatarData(r.data), 'Categoria': r.categoria,
+      'Imóvel': r.imovel, 'Tipo': r.tipo, 'Status': r.status,
+      'Descrição': r.descricao, 'Prestador/Fornecedor': r.prestador || '',
+      'Local da Compra': r.local_compra || '', 'Quantidade': r.quantidade || '',
+      'Nota Fiscal/Recibo': r.nota || '',
+      'Orçamento (R$)': r.orcamento || 0, 'Valor Pago (R$)': r.valor || 0,
+      'Diferença (R$)': (r.valor || 0) - (r.orcamento || 0),
+      'Forma de Pagamento': r.pagamento || '',
+      'Observações': r.observacoes || '',
+      'Itens Lavanderia': itensResumo,
+      'Total Peças': totalPecas || '',
+      'Qtd. Mídias': (r.midias || []).length,
+      'Arquivos de Mídia': (r.midias || []).map(m => m.nome).join('; ')
+    };
+  });
 
   const wb = XLSX.utils.book_new();
   const ws1 = XLSX.utils.json_to_sheet(dados);
-  ws1['!cols'] = [{wch:12},{wch:13},{wch:18},{wch:18},{wch:14},{wch:40},{wch:22},{wch:18},{wch:10},{wch:16},{wch:14},{wch:14},{wch:14},{wch:16},{wch:30},{wch:10},{wch:40}];
+  ws1['!cols'] = [{wch:12},{wch:13},{wch:18},{wch:18},{wch:14},{wch:40},{wch:22},{wch:18},{wch:10},{wch:16},{wch:14},{wch:14},{wch:14},{wch:16},{wch:30},{wch:40},{wch:11},{wch:10},{wch:40}];
   XLSX.utils.book_append_sheet(wb, ws1, 'Registros');
+
+  // Aba detalhada de Lavanderia (cada item em uma linha)
+  const linhasLav = [];
+  registros.filter(r => r.categoria === 'Lavanderia').forEach(r => {
+    (r.itens || []).forEach(it => {
+      const sub = (parseFloat(it.quantidade) || 0) * (parseFloat(it.valor_unitario) || 0);
+      linhasLav.push({
+        'Data': formatarData(r.data),
+        'Imóvel': r.imovel,
+        'Lavanderia': r.prestador || '',
+        'Tipo de Serviço': r.tipo,
+        'Item / Peça': it.item || '',
+        'Quantidade': parseFloat(it.quantidade) || 0,
+        'Valor Unitário (R$)': parseFloat(it.valor_unitario) || 0,
+        'Subtotal (R$)': sub,
+        'Status': r.status,
+        'NF/Recibo': r.nota || ''
+      });
+    });
+  });
+  if (linhasLav.length > 0) {
+    const wsLav = XLSX.utils.json_to_sheet(linhasLav);
+    wsLav['!cols'] = [{wch:12},{wch:22},{wch:22},{wch:18},{wch:24},{wch:11},{wch:16},{wch:14},{wch:14},{wch:14}];
+    XLSX.utils.book_append_sheet(wb, wsLav, 'Lavanderia - Itens');
+  }
 
   const buffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
   const temMidias = registros.some(r => (r.midias || []).length > 0);
@@ -1103,17 +1412,19 @@ async function exportarPDF() {
   const H = doc.internal.pageSize.getHeight();
   const M = 15;
 
-  doc.setFillColor(102, 126, 234);
+  doc.setFillColor(52, 88, 104);
   doc.rect(0, 0, W, 50, 'F');
+  doc.setFillColor(4, 149, 154);
+  doc.rect(0, 47, W, 3, 'F');
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(22).setFont('helvetica', 'bold');
   doc.text('Relatório de Manutenções', M, 25);
   doc.setFontSize(13).setFont('helvetica', 'normal');
-  doc.text('Casa de Aluguel de Temporada - Prestação de Contas', M, 33);
+  doc.text('Agência da Sereia - Casa de Aluguel de Temporada', M, 33);
   doc.setFontSize(10);
   doc.text('Gerado em: ' + new Date().toLocaleDateString('pt-BR') + ' às ' + new Date().toLocaleTimeString('pt-BR'), M, 42);
 
-  doc.setTextColor(45, 55, 72);
+  doc.setTextColor(52, 88, 104);
   let y = 65;
   doc.setFontSize(14).setFont('helvetica', 'bold').text('Resumo Geral', M, y);
   y += 8;
@@ -1123,16 +1434,22 @@ async function exportarPDF() {
   const reembolso = dados.filter(r => r.status !== 'Reembolsado').reduce((s, r) => s + (parseFloat(r.valor) || 0), 0);
   const qtdManut = dados.filter(r => r.categoria === 'Manutenção').length;
   const qtdProd = dados.filter(r => r.categoria === 'Produto').length;
+  const qtdLav = dados.filter(r => r.categoria === 'Lavanderia').length;
+  const totalPecasLav = dados.filter(r => r.categoria === 'Lavanderia')
+    .reduce((s, r) => s + (r.itens || []).reduce((ss, it) => ss + (parseFloat(it.quantidade) || 0), 0), 0);
+
+  const resumoBody = [
+    ['Total de Registros', `${dados.length} (${qtdManut} manutenções + ${qtdProd} produtos + ${qtdLav} lavanderia)`],
+    ['Orçamento Total', brl(totalOrc)],
+    ['Valor Pago Total', brl(totalVal)],
+    ['Diferença', brl(totalVal - totalOrc)],
+    ['A Reembolsar', brl(reembolso)]
+  ];
+  if (qtdLav > 0) resumoBody.push(['Total de Peças (Lavanderia)', String(totalPecasLav)]);
 
   doc.autoTable({
     startY: y,
-    body: [
-      ['Total de Registros', dados.length + ' (' + qtdManut + ' manutenções + ' + qtdProd + ' produtos)'],
-      ['Orçamento Total', brl(totalOrc)],
-      ['Valor Pago Total', brl(totalVal)],
-      ['Diferença', brl(totalVal - totalOrc)],
-      ['A Reembolsar', brl(reembolso)]
-    ],
+    body: resumoBody,
     theme: 'plain',
     styles: { fontSize: 10, cellPadding: 2 },
     columnStyles: { 0: { fontStyle: 'bold', cellWidth: 50 } },
@@ -1148,20 +1465,21 @@ async function exportarPDF() {
     body: dados.map(r => [formatarData(r.data), r.categoria.substring(0,4), r.imovel, r.tipo, (r.descricao||'').substring(0,60), r.orcamento ? brl(r.orcamento) : '-', brl(r.valor||0), r.status]),
     theme: 'striped',
     styles: { fontSize: 8, cellPadding: 2 },
-    headStyles: { fillColor: [102, 126, 234], textColor: 255 },
+    headStyles: { fillColor: [52, 88, 104], textColor: 255 },
     margin: { left: M, right: M }
   });
 
   for (const r of dados) {
     doc.addPage();
     y = M;
-    const corCat = r.categoria === 'Produto' ? [21, 94, 117] : [91, 33, 182];
+    const corCat = r.categoria === 'Produto' ? [247, 147, 30]
+                 : (r.categoria === 'Lavanderia' ? [60, 208, 159] : [4, 149, 154]);
     doc.setFillColor(...corCat);
     doc.rect(0, 0, W, 22, 'F');
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(12).setFont('helvetica', 'bold').text(r.categoria.toUpperCase() + ' - ' + r.tipo, M, 10);
     doc.setFontSize(10).setFont('helvetica', 'normal').text(formatarData(r.data) + '  |  ' + r.imovel, M, 17);
-    doc.setTextColor(45, 55, 72);
+    doc.setTextColor(52, 88, 104);
     y = 30;
 
     const linhas = [
@@ -1179,7 +1497,7 @@ async function exportarPDF() {
     doc.autoTable({
       startY: y, body: linhas, theme: 'striped',
       styles: { fontSize: 9, cellPadding: 2 },
-      columnStyles: { 0: { fontStyle: 'bold', cellWidth: 45, fillColor: [247, 250, 252] } },
+      columnStyles: { 0: { fontStyle: 'bold', cellWidth: 45, fillColor: [230, 247, 248], textColor: [52, 88, 104] } },
       margin: { left: M, right: M }
     });
     y = doc.lastAutoTable.finalY + 6;
@@ -1200,6 +1518,47 @@ async function exportarPDF() {
       y += obsLines.length * 5 + 3;
     }
 
+    // Tabela de itens para Lavanderia
+    if (r.categoria === 'Lavanderia' && r.itens && r.itens.length > 0) {
+      y += 4;
+      if (y > H - 40) { doc.addPage(); y = M; }
+      doc.setFontSize(11).setFont('helvetica', 'bold');
+      doc.text('👕 Itens da Lavanderia', M, y);
+      y += 4;
+
+      const linhasItens = r.itens.map(it => {
+        const sub = (parseFloat(it.quantidade) || 0) * (parseFloat(it.valor_unitario) || 0);
+        return [
+          it.item || '-',
+          String(it.quantidade || 0),
+          brl(parseFloat(it.valor_unitario) || 0),
+          brl(sub)
+        ];
+      });
+
+      const totalQtd = r.itens.reduce((s, it) => s + (parseFloat(it.quantidade) || 0), 0);
+      const totalVal = r.itens.reduce((s, it) => s + (parseFloat(it.quantidade) || 0) * (parseFloat(it.valor_unitario) || 0), 0);
+
+      doc.autoTable({
+        startY: y,
+        head: [['Item / Peça', 'Qtd', 'Valor Unit.', 'Subtotal']],
+        body: linhasItens,
+        foot: [['TOTAL', String(totalQtd), '', brl(totalVal)]],
+        theme: 'striped',
+        styles: { fontSize: 9, cellPadding: 3 },
+        headStyles: { fillColor: [60, 208, 159], textColor: [13, 61, 46], fontStyle: 'bold' },
+        footStyles: { fillColor: [52, 88, 104], textColor: 255, fontStyle: 'bold' },
+        columnStyles: {
+          0: { cellWidth: 'auto' },
+          1: { cellWidth: 25, halign: 'center' },
+          2: { cellWidth: 35, halign: 'right' },
+          3: { cellWidth: 35, halign: 'right' }
+        },
+        margin: { left: M, right: M }
+      });
+      y = doc.lastAutoTable.finalY + 6;
+    }
+
     if (r.midias && r.midias.length > 0) {
       y += 4;
       if (y > H - 60) { doc.addPage(); y = M; }
@@ -1218,11 +1577,11 @@ async function exportarPDF() {
           const dataUrl = await blobParaImagem(blob, m.tipo);
           if (dataUrl) {
             doc.addImage(dataUrl, 'JPEG', xPos, y, imgW, imgH, undefined, 'FAST');
-            doc.setFontSize(8).setFont('helvetica', 'normal').setTextColor(113, 128, 150);
+            doc.setFontSize(8).setFont('helvetica', 'normal').setTextColor(4, 149, 154);
             const label = (m.tipo === 'video' ? '🎥 ' : '📷 ') + m.nome;
             const labelLines = doc.splitTextToSize(label, imgW);
             doc.text(labelLines[0] || label, xPos, y + imgH + 4);
-            doc.setTextColor(45, 55, 72);
+            doc.setTextColor(52, 88, 104);
           }
         } catch (e) { console.error(e); }
         col++;
@@ -1236,9 +1595,9 @@ async function exportarPDF() {
   const pageCount = doc.internal.getNumberOfPages();
   for (let i = 1; i <= pageCount; i++) {
     doc.setPage(i);
-    doc.setFontSize(8).setTextColor(160, 174, 192);
+    doc.setFontSize(8).setTextColor(4, 149, 154);
     doc.text('Página ' + i + ' de ' + pageCount, W - M, H - 8, { align: 'right' });
-    doc.text('Manutenções - Casa de Temporada', M, H - 8);
+    doc.text('Agência da Sereia - Manutenções', M, H - 8);
   }
 
   doc.save(`Relatorio_Manutencoes_${new Date().toISOString().slice(0,10)}.pdf`);
